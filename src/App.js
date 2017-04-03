@@ -22,8 +22,6 @@ import {
   Button
 } from 'react-bootstrap';
 
-import mqtt from 'mqtt/lib/connect';
-
 import api from './api';
 
 import Error from './Error'
@@ -59,11 +57,11 @@ class App extends Component {
   }
 
   handlePortaoVeiculo() {
-    api.portao.veiculo(handleResult.bind(this))
+    api.portao.veiculo(this.handleResult.bind(this))
   }
 
   handlePortaoPedestre() {
-    api.portao.pedestre(handleResult.bind(this))
+    api.portao.pedestre(this.handleResult.bind(this))
   }
 
   handleResult(result) {
