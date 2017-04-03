@@ -15,12 +15,18 @@ import {
   Panel,
   ListGroup,
   ListGroupItem,
-  Badge
+  Badge,
+  OverlayTrigger,
+  Tooltip,
+  Glyphicon,
+  Button
 } from 'react-bootstrap';
 
 import mqtt from 'mqtt/lib/connect';
 
 import api from './api';
+
+import Error from './Error'
 
 class App extends Component {
   constructor(props) {
@@ -29,14 +35,79 @@ class App extends Component {
     this.handlePortaoVeiculo = this.handlePortaoVeiculo.bind(this);
     this.handlePortaoPedestre = this.handlePortaoPedestre.bind(this);
 
+    this.handleResult = this.handleResult.bind(this);  
+    this.handleError = this.handleError.bind(this); 
+    this.handleCloseDialog = this.handleCloseDialog.bind(this);
+     
   }
   
+  componentWillMount() {
+    api.config.setErrorHandler(this.handleErro);
+  }
+
+  componentWillUnmount() {
+    //this.unsubscribe()
+  }
+
+  handleError(err) {
+    let props = { ...err, message: err.message, stack: err.stack }
+    this.setState({ dialog: <Error {...props} onClose={this.handleCloseDialog.bind(this)} /> })
+  }
+
+  handleCloseDialog() {
+    this.setState({ dialog: null })
+  }
+
+  handlePortaoVeiculo() {
+    api.portao.veiculo(handleResult.bind(this))
+  }
+
+  handlePortaoPedestre() {
+    api.portao.pedestre(handleResult.bind(this))
+  }
+
+  handleResult(result) {
+
+  }
+
   render() {
     return (
       <div className="App">
         <Row>
-          <Column md={6}><Buttom onClick={this.handlePortaoVeiculo} /></Column>
-          <Column md={6}><Buttom onClick={this.handlePortaoPedestre} /></Column>
+          <Col md={3} >
+
+            <OverlayTrigger 
+              placement="top" 
+              overlay={(<Tooltip id="tooltip">Abrir e Fechar Portão para Veiculos</Tooltip>)}
+            >
+                <Button
+                  onClick={this.handlePortaoVeiculo}
+                  style={{width: 120}}
+                  bsStyle="success"
+                >
+                  <Glyphicon glyph="search" />
+                  <div><span>Veiculos</span></div>
+                </Button>
+            </OverlayTrigger>
+
+          </Col>
+          <Col md={3} >
+
+            <OverlayTrigger 
+              placement="top" 
+              overlay={(<Tooltip id="tooltip">Abrir e Fechar Portão para Pedestres</Tooltip>)}
+            >
+                <Button
+                  onClick={this.handlePortaoVeiculo}
+                  style={{width: 120}}
+                  bsStyle="success"
+                >
+                  <Glyphicon glyph="search" />
+                  <div><span>Pedestre</span></div>
+                </Button>
+            </OverlayTrigger>
+
+          </Col>
         </Row>
       </div>
     );
