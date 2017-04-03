@@ -1,22 +1,14 @@
 import React, { Component } from 'react';
 
-import logo from './logo.svg';
+//http://192.168.0.133:1880/sitio
+
 import './App.css';
 
 import {
-  Nav,
-  Navbar,
-  NavItem,
   Col,
   Row,
-  Accordion,
-  Panel,
-  ListGroup,
-  ListGroupItem,
-  Badge,
   OverlayTrigger,
   Tooltip,
-  Glyphicon,
   Button,
   Image
 } from 'react-bootstrap';
@@ -82,7 +74,7 @@ class App extends Component {
             >
                 <Button
                   onClick={this.handlePortaoVeiculo}
-                  style={{width: '90%', height: 200, margin: 20}}
+                  style={{width: '80%', height: 200, margin: 20}}
                   bsStyle="success"
                 >
                   <Image src={Car} />
@@ -99,7 +91,7 @@ class App extends Component {
             >
                 <Button
                   onClick={this.handlePortaoPedestre}
-                  style={{width: '90%', height: 200, margin: 20}}
+                  style={{width: '80%', height: 200, margin: 20}}
                   bsStyle="success"
                 >
                   <Image src={Walk} />
