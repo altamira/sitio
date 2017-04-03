@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import { browserHistory } from 'react-router';
-import { Link } from 'react-router';
 
 import logo from './logo.svg';
 import './App.css';
@@ -19,12 +17,16 @@ import {
   OverlayTrigger,
   Tooltip,
   Glyphicon,
-  Button
+  Button,
+  Image
 } from 'react-bootstrap';
 
 import api from './api';
 
-import Error from './Error'
+import Car from './car.svg'
+import Walk from './walk.svg'
+
+import ErrorMessage from './Error'
 
 class App extends Component {
   constructor(props) {
@@ -40,7 +42,7 @@ class App extends Component {
   }
   
   componentWillMount() {
-    api.config.setErrorHandler(this.handleErro);
+    api.config.setErrorHandler(this.handleError);
   }
 
   componentWillUnmount() {
@@ -49,7 +51,7 @@ class App extends Component {
 
   handleError(err) {
     let props = { ...err, message: err.message, stack: err.stack }
-    this.setState({ dialog: <Error {...props} onClose={this.handleCloseDialog.bind(this)} /> })
+    this.setState({ dialog: <ErrorMessage {...props} onClose={this.handleCloseDialog.bind(this)} /> })
   }
 
   handleCloseDialog() {
@@ -72,7 +74,7 @@ class App extends Component {
     return (
       <div className="App">
         <Row>
-          <Col md={3} >
+          <Col md={6} >
 
             <OverlayTrigger 
               placement="top" 
@@ -80,27 +82,27 @@ class App extends Component {
             >
                 <Button
                   onClick={this.handlePortaoVeiculo}
-                  style={{width: 120}}
+                  style={{width: '90%', height: 200, margin: 20}}
                   bsStyle="success"
                 >
-                  <Glyphicon glyph="search" />
+                  <Image src={Car} />
                   <div><span>Veiculos</span></div>
                 </Button>
             </OverlayTrigger>
 
           </Col>
-          <Col md={3} >
+          <Col md={6} >
 
             <OverlayTrigger 
               placement="top" 
               overlay={(<Tooltip id="tooltip">Abrir e Fechar Portão para Pedestres</Tooltip>)}
             >
                 <Button
-                  onClick={this.handlePortaoVeiculo}
-                  style={{width: 120}}
+                  onClick={this.handlePortaoPedestre}
+                  style={{width: '90%', height: 200, margin: 20}}
                   bsStyle="success"
                 >
-                  <Glyphicon glyph="search" />
+                  <Image src={Walk} />
                   <div><span>Pedestre</span></div>
                 </Button>
             </OverlayTrigger>

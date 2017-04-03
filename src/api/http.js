@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-let host = 'http://' + window.location.hostname + ':1880/api/'
+let host = 'http://' + /*window.location.hostname*/ '192.168.0.133' + ':1880/api/'
 
 function fetch(url, callback, error) {
 	if (!callback) {
