@@ -1,5 +1,920 @@
-<<<<<<< HEAD
-[{"id":"a6a9408e.1acc6","type":"inject","z":"8910d6cc.874ba8","name":"test","topic":"","payload":"test1","payloadType":"str","repeat":"","crontab":"","once":false,"x":155.1657257080078,"y":50.151519775390625,"wires":[["a8abb62c.3fce38"]]},{"id":"a8abb62c.3fce38","type":"debug","z":"8910d6cc.874ba8","name":"","active":true,"console":"false","complete":"false","x":340.1657257080078,"y":50.151519775390625,"wires":[]},{"id":"461abfb.a2b9c4","type":"mqtt in","z":"8910d6cc.874ba8","name":"test","topic":"/test","qos":"0","broker":"70fbcdd2.a656d4","x":155.1657257080078,"y":112.15151977539062,"wires":[["a8abb62c.3fce38"]]},{"id":"17dc8881.00d9e7","type":"mqtt out","z":"8910d6cc.874ba8","name":"test receiver","topic":"/test","qos":"0","retain":"false","broker":"70fbcdd2.a656d4","x":373.1657257080078,"y":199.15151977539062,"wires":[]},{"id":"dbad6698.be8528","type":"inject","z":"8910d6cc.874ba8","name":"test","topic":"","payload":"test1","payloadType":"str","repeat":"","crontab":"","once":false,"x":167.6657257080078,"y":199.15151977539062,"wires":[["17dc8881.00d9e7"]]},{"id":"63f05b4e.e1c2e4","type":"mongodb in","z":"8910d6cc.874ba8","mongodb":"d9cec698.d48398","name":"","collection":"db","operation":"find","x":281.1657257080078,"y":305.1515197753906,"wires":[[]]},{"id":"1eee5138.3a5b7f","type":"modbustcp-no-pooling-read","z":"8910d6cc.874ba8","name":"Read POP","dataType":"HoldingRegister","adr":"0","quantity":"32","server":"1c62d821.0ade98","x":567.6657257080078,"y":449.1515197753906,"wires":[["22ee802b.80cd1"],["5cb3de20.263f5"]]},{"id":"b20d7c0a.3d6f6","type":"debug","z":"8910d6cc.874ba8","name":"Leitura PLC","active":true,"console":"false","complete":"payload","x":983.3620529174805,"y":434.7984104156494,"wires":[]},{"id":"c167d3d9.d4b6b","type":"inject","z":"8910d6cc.874ba8","name":"atualizar","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":362.4274559020996,"y":448.8149528503418,"wires":[["1eee5138.3a5b7f"]]},{"id":"4c884481.a4412c","type":"function","z":"8910d6cc.874ba8","name":"Variaveis Globais","func":"//Estado inicial da maquina é não inicializada MaqInicializada=0\nglobal.set(\"ComandoMaquina\",0);//liberamensagens do bloco libera maquina\nglobal.set(\"MotorPrensa\",0);\nglobal.set(\"MotorLigado\",0);\nglobal.set(\"MotorInvertido\",0);\nglobal.set(\"Desbobinador\",0);\nglobal.set(\"Indice_Mongo\",0);\nglobal.set(\"TamanhoDesejadoPeca_KEYBOARD\",0);\nglobal.set(\"TamanhoRealPeca_KEYBOARD\",0);\nglobal.set(\"FatorEncoder\",9909);\nglobal.set(\"ModBus\",[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);\nvar start = new Date().getTime();\nglobal.set(\"tempo\",start);\n\nvar mensagens = [];\n\nmensagens['LER_CLP_MODBUS'] =        { type: 'error', message: ' CLP não responde. Verifique as conexões de rede.' };\nmensagens['EMERGENCIA'] =            { type: 'error', message: ' Emergencia acionada!' };\nmensagens['FALTA_FASE'] =            { type: 'error', message: ' Falta de Fase' };\nmensagens['BOMBA_HIDRAULICA'] =      { type: 'error', message: ' Térmico da Bomba Hidraulica' };\nmensagens['MARTELO_PRENSA'] =        { type: 'error', message: ' Térmico do Motor do Martelo Prensa' };\nmensagens['PRESSAO_AR'] =            { type: 'warning', message: 'Pressao do Ar Baixa!' };\nmensagens['INVERSOR'] =              { type: 'error', message: ' Erro no Inversor' };\nmensagens['SERVO'] =                 { type: 'error', message: ' Erro no Servo' };\nmensagens['CHAVE_GERAL_DESLIGADA'] = { type: 'warning', message: ' Chave Geral Desligada' };\nmensagens['CHAVE_GERAL_LIGADA']    = { type: 'warning', message: ' Chave Geral ligada' };\nmensagens['MAQUINA_NAO_LIBERADA'] =  { type: 'warning', message: ' Maquina Não Liberada' };\nmensagens['MAQUINA_LIBERADA']     =  { type: 'warning', message: ' Maquina Liberada' };\nmensagens['ERRO_POSICIONAMENTO']=    { type: 'error', message: ' Erro Posicionamento' };\nmensagens['SEGURAN_PRENSA'] =        { type: 'info', message: ' Segurança da Prensa' };\nmensagens['APLAN_ABERTA'] =          { type: 'info', message: ' Aplanadora Aberda' };\n\nglobal.set(\"mensagens\",mensagens);\nmsg= {payload: \"{MAQUINA_OFF:0}\"};\nreturn msg;","outputs":1,"noerr":0,"x":569.0464477539062,"y":520.9698753356934,"wires":[[]]},{"id":"75b741f0.81b05","type":"inject","z":"8910d6cc.874ba8","name":"Globais","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":true,"x":368.3800964355469,"y":520.9610443115234,"wires":[["4c884481.a4412c"]]},{"id":"22ee802b.80cd1","type":"function","z":"8910d6cc.874ba8","name":"loop leitura i=0","func":"global.set(\"ModBus\",msg.payload);\nmsg.i =0;\nreturn msg;","outputs":1,"noerr":0,"x":790.9990158081055,"y":434.1515121459961,"wires":[["b20d7c0a.3d6f6"]]},{"id":"5cb3de20.263f5","type":"debug","z":"8910d6cc.874ba8","name":"Erro","active":true,"console":"false","complete":"payload","x":760.6012687683105,"y":479.03317642211914,"wires":[]},{"id":"19f64343.38582d","type":"function","z":"8910d6cc.874ba8","name":"Abrir portao","func":"var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nmodbus[0] = 1;\nmsg.payload = modbus[0];\nmsg2.payload = \"ACIONANDO PORTAO\";\nmsg2.payload.time= new Date();\nnode.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n\n   \n\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];","outputs":"2","noerr":0,"x":605.9990997314453,"y":700.8182067871094,"wires":[["7e3aee47.4cc3","7183b2e4.2b27fc","6bf6b455.7c331c"],["86e7e5d6.e46cf8"]]},{"id":"7183b2e4.2b27fc","type":"modbustcp-no-pooling-write","z":"8910d6cc.874ba8","name":"portao M0.0","dataType":"HoldingRegister","adr":"0","server":"1c62d821.0ade98","x":858.7171325683594,"y":694.4647312164307,"wires":[["d86fd25f.65b6c"],["22b747ee.882c38"]]},{"id":"9a2735f.170a0c8","type":"inject","z":"8910d6cc.874ba8","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":362.28694661458303,"y":698.9479166666665,"wires":[["19f64343.38582d"]]},{"id":"7e3aee47.4cc3","type":"debug","z":"8910d6cc.874ba8","name":"","active":true,"console":"false","complete":"false","x":858.9535446166992,"y":640.6997470855713,"wires":[]},{"id":"86e7e5d6.e46cf8","type":"debug","z":"8910d6cc.874ba8","name":"mensagem ok","active":true,"console":"false","complete":"payload","x":865.6152877807617,"y":752.3663749694824,"wires":[]},{"id":"d86fd25f.65b6c","type":"debug","z":"8910d6cc.874ba8","name":"RESPOSTA","active":true,"console":"false","complete":"payload","x":1087.286946614583,"y":689.028381347656,"wires":[]},{"id":"4fb0760b.8f1b88","type":"http in","z":"8910d6cc.874ba8","name":"veiculo","url":"/api/portao/veiculo","method":"post","swaggerDoc":"","x":347.6657257080078,"y":787.1515197753904,"wires":[["19f64343.38582d"]]},{"id":"6bf6b455.7c331c","type":"http response","z":"8910d6cc.874ba8","name":"/api/portao/veiculo","x":879.6657257080078,"y":591.1515197753906,"wires":[]},{"id":"22b747ee.882c38","type":"debug","z":"8910d6cc.874ba8","name":"Erro no Comando","active":true,"console":"false","complete":"payload","x":1108.1101837158203,"y":729.1514587402344,"wires":[]},{"id":"7c007a3.c17a184","type":"function","z":"8910d6cc.874ba8","name":"Abrir portao menor S2","func":"var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nif (modbus[2]==0){\n    modbus[2] |= (1<<2);\n    msg.payload = modbus[2];\n    msg2.payload = \"ACIONANDO PORTAO MENOR\";\n    msg2.payload.time= new Date();\n    node.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n}\nelse if (modbus[2]==4){\n    modbus[2] &= ~(1<<2);\n    msg.payload = modbus[2];\n    msg2.payload = \"DESLIGA PORTAO MENOR\";\n    msg2.payload.time= new Date();\n    node.status({fill:\"blue\",shape:\"ring\",text:msg.payload});\n}\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];","outputs":"2","noerr":0,"x":638.6657257080078,"y":952.4847717285156,"wires":[["f42e61b3.7415a","f6c38c2c.a3e26","5623092b.acfb98"],["9a79c8ce.e9cc98"]]},{"id":"f6c38c2c.a3e26","type":"modbustcp-no-pooling-write","z":"8910d6cc.874ba8","name":"portao M2","dataType":"HoldingRegister","adr":"2","server":"1c62d821.0ade98","x":851.3837585449219,"y":946.1312961578369,"wires":[["58c8fb96.fc9994"],["8ca5cf1e.eca9b"]]},{"id":"f42e61b3.7415a","type":"debug","z":"8910d6cc.874ba8","name":"","active":true,"console":"false","complete":"false","x":861.6201705932617,"y":892.3663120269775,"wires":[]},{"id":"9a79c8ce.e9cc98","type":"debug","z":"8910d6cc.874ba8","name":"mensagem ok","active":true,"console":"false","complete":"payload","x":868.2819137573242,"y":1004.0329399108887,"wires":[]},{"id":"58c8fb96.fc9994","type":"debug","z":"8910d6cc.874ba8","name":"RESPOSTA","active":true,"console":"false","complete":"payload","x":1089.9535725911455,"y":940.6949462890623,"wires":[]},{"id":"5623092b.acfb98","type":"http response","z":"8910d6cc.874ba8","name":"/api/portao/pedestre","x":892.3323516845703,"y":842.8180847167969,"wires":[]},{"id":"8ca5cf1e.eca9b","type":"debug","z":"8910d6cc.874ba8","name":"Erro no Comando","active":true,"console":"false","complete":"payload","x":1110.7768096923828,"y":980.8180236816406,"wires":[]},{"id":"ffaf7e6d.17723","type":"inject","z":"8910d6cc.874ba8","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":364.95357259114553,"y":950.6144816080728,"wires":[["7c007a3.c17a184"]]},{"id":"b23a298a.53d218","type":"http in","z":"8910d6cc.874ba8","name":"pedestre","url":"/api/portao/pedestre","method":"post","swaggerDoc":"","x":360.3323516845703,"y":1038.8180847167966,"wires":[["7c007a3.c17a184"]]},{"id":"1cb0324e.fe00ce","type":"http response","z":"8910d6cc.874ba8","name":"","x":995.1243286132812,"y":1253.068115234375,"wires":[]},{"id":"f35b9878.302e98","type":"http in","z":"8910d6cc.874ba8","name":"Index","url":"/sitio","method":"get","swaggerDoc":"","x":244.56868616739894,"y":1253.1791771782769,"wires":[["16c3ad88.930382"]]},{"id":"16c3ad88.930382","type":"file in","z":"8910d6cc.874ba8","name":"index.HTML","filename":"/home/marcelomiranda/git/sitio/build/index.html","format":"utf8","x":632.679801940918,"y":1253.2902898788452,"wires":[["34bbb377.95db9c","fd2ddbdf.25b418"]]},{"id":"e2733685.a82078","type":"http response","z":"8910d6cc.874ba8","name":"","x":995.568814595541,"y":1373.734764099121,"wires":[]},{"id":"3bc0d0ac.70c1d","type":"function","z":"8910d6cc.874ba8","name":"Text/CSS","func":"msg.headers = { \"Content-type\" : \"text/css\" }\n \nreturn msg;","outputs":1,"noerr":0,"x":834.1242256164551,"y":1373.6236171722412,"wires":[["e2733685.a82078"]]},{"id":"2b587d55.dfb952","type":"comment","z":"8910d6cc.874ba8","name":"HTML","info":"","x":244.1243133544922,"y":1217.0680904388428,"wires":[]},{"id":"a7272f51.3eeb3","type":"comment","z":"8910d6cc.874ba8","name":"CSS folder","info":"","x":255.01312637329102,"y":1337.179349899292,"wires":[]},{"id":"bd14a7d7.ccf6a8","type":"comment","z":"8910d6cc.874ba8","name":"JAVASCRIPT folder","info":"","x":284.45762634277344,"y":1416.6238641738892,"wires":[]},{"id":"fadb9ed6.604a8","type":"http response","z":"8910d6cc.874ba8","name":"","x":995.5687764485683,"y":1454.179183959961,"wires":[]},{"id":"84dc658f.daf7e8","type":"http in","z":"8910d6cc.874ba8","name":"Scripts","url":"/static/js/:file","method":"get","swaggerDoc":"","x":245.01313400268555,"y":1454.2902459038628,"wires":[["8a229b5c.0bce18"]]},{"id":"c2ebbfad.00777","type":"comment","z":"8910d6cc.874ba8","name":"media folder","info":"","x":264.2353057861328,"y":1503.29026222229,"wires":[]},{"id":"d9fb63e9.421ef","type":"http response","z":"8910d6cc.874ba8","name":"","x":994.7910054524746,"y":1538.6237869262695,"wires":[]},{"id":"a5781f1e.d9ceb","type":"http in","z":"8910d6cc.874ba8","name":"media","url":"/static/media/:file","method":"get","swaggerDoc":"","x":244.2353630065918,"y":1538.7348488701714,"wires":[["8e5e6ff2.9f319"]]},{"id":"9456f36d.7f481","type":"function","z":"8910d6cc.874ba8","name":"media","func":"var ext = msg.filename.split('.')[msg.filename.split('.').length - 1]\n\nconsole.log('File extension: ' + ext)\n\nswitch(ext) {\n    case 'eot':\n        msg.headers = { \"Content-type\" : \"application/vnd.ms-fontobject\" }\n        break;\n    case 'svg':\n        msg.headers = { \"Content-type\" : \"image/svg+xml\" }\n        break;\n    case 'ttf':\n        msg.headers = { \"Content-type\" : \"application/x-font-ttf\" }\n        break;\n    case 'woff':\n        msg.headers = { \"Content-type\" : \"application/font-woff\" }\n        break;\n    case 'woff2':\n        msg.headers = { \"Content-type\" : \"application/font-woff2\" }\n        break;\n    case 'otf':\n        msg.headers = { \"Content-type\" : \"application/x-font-opentype\" }\n        break;\n}\n\n\nreturn msg;","outputs":1,"noerr":0,"x":826.0131568908691,"y":1538.512674331665,"wires":[["d9fb63e9.421ef","34ca9de4.afc932"]]},{"id":"34bbb377.95db9c","type":"function","z":"8910d6cc.874ba8","name":"Text/HTML","func":"msg.headers = { \"Content-type\" : \"text/html\" }\n\nreturn msg;","outputs":1,"noerr":0,"x":842.9575805664062,"y":1253.0892639160156,"wires":[["1cb0324e.fe00ce"]]},{"id":"f76a8ad3.0b1268","type":"http in","z":"8910d6cc.874ba8","name":"CSS Files","url":"/static/css/:file","method":"get","swaggerDoc":"","x":255.92062759399414,"y":1373.353394402398,"wires":[["b34d2c27.36ecd"]]},{"id":"b34d2c27.36ecd","type":"function","z":"8910d6cc.874ba8","name":"files","func":"msg.filename = '//home//marcelomiranda//git//sitio//build//static//css//' + msg.req.params.file;\nreturn msg;","outputs":1,"noerr":0,"x":488.14287185668945,"y":1373.131226433648,"wires":[["f4676275.389df"]]},{"id":"f4676275.389df","type":"file in","z":"8910d6cc.874ba8","name":"","filename":"","format":"","x":654.3651084899902,"y":1373.2423943413628,"wires":[["3bc0d0ac.70c1d","6d2a96be.011868"]]},{"id":"8a229b5c.0bce18","type":"function","z":"8910d6cc.874ba8","name":"files","func":"msg.filename = '//home//marcelomiranda//git//sitio//build//static//js//' + msg.req.params.file;\nreturn msg;","outputs":1,"noerr":0,"x":485.892635345459,"y":1455.1867063045502,"wires":[["46d56a92.8250a4"]]},{"id":"8e5e6ff2.9f319","type":"function","z":"8910d6cc.874ba8","name":"files","func":"msg.filename = '//home//marcelomiranda//git//sitio//build//static//media//' + msg.req.params.file;\nreturn msg;","outputs":1,"noerr":0,"x":491.4761772155762,"y":1538.4644669426812,"wires":[["3c2a15c5.4eea4a"]]},{"id":"46d56a92.8250a4","type":"file in","z":"8910d6cc.874ba8","name":"","filename":"","format":"","x":654.8095588684082,"y":1455.131226433648,"wires":[["6a770060.9333a","fadb9ed6.604a8"]]},{"id":"6a770060.9333a","type":"debug","z":"8910d6cc.874ba8","name":"FIles JS","active":false,"console":"false","complete":"filename","x":834.6984634399414,"y":1493.9090565575493,"wires":[]},{"id":"3c2a15c5.4eea4a","type":"file in","z":"8910d6cc.874ba8","name":"","filename":"","format":"","x":657.0317268371582,"y":1538.2421883477105,"wires":[["9456f36d.7f481"]]},{"id":"96955030.26226","type":"http response","z":"8910d6cc.874ba8","name":"","x":994.5688603719077,"y":1290.6311043633355,"wires":[]},{"id":"476b793c.f3ba48","type":"http in","z":"8910d6cc.874ba8","name":"Bootstrap","url":"/sitio","method":"get","swaggerDoc":"","x":253.0132179260254,"y":1290.7421663072373,"wires":[["84e81963.2a93a8"]]},{"id":"84e81963.2a93a8","type":"file in","z":"8910d6cc.874ba8","name":"boostrap.min","filename":"/home/marcelomiranda/react-node-red/build/boostrap.min","format":"utf8","x":631.1243336995444,"y":1290.8532790078057,"wires":[["d88a20ef.85c3b"]]},{"id":"d88a20ef.85c3b","type":"function","z":"8910d6cc.874ba8","name":"Text/CSS","func":"msg.headers = { \"Content-type\" : \"text/css\" }\n \nreturn msg;","outputs":1,"noerr":0,"x":833.1428642272949,"y":1290.4088572396172,"wires":[["96955030.26226"]]},{"id":"6d2a96be.011868","type":"debug","z":"8910d6cc.874ba8","name":"CSS files","active":false,"console":"false","complete":"true","x":835.0317878723145,"y":1418.464478386773,"wires":[]},{"id":"eb167d74.e3bbc","type":"comment","z":"8910d6cc.874ba8","name":"Servidor WEB","info":"$options => i for case insensitive search\n\nStart with string\n\ndb.collection.find({zip:{'$regex' : '^string', '$options' : 'i'}})\nEnd with string\n\ndb.collection.find({zip:{'$regex' : 'string$', '$options' : 'i'}})\nContains string\n\ndb.collection.find({zip:{'$regex' : 'string', '$options' : 'i'}})\nDoesn't Contains string\n\ndb.collection.find({zip:{'$regex' : '^((?!string).)*$', '$options' : 'i'}})\nKeep this as a bookmark, and a reference for any other alterations you may need. http://www.cheatography.com/davechild/cheat-sheets/regular-expressions/","x":672.587272644043,"y":1200.5198945999146,"wires":[]},{"id":"fd2ddbdf.25b418","type":"debug","z":"8910d6cc.874ba8","name":"saida","active":false,"console":"false","complete":"true","x":823.8743057250977,"y":1213.201545715332,"wires":[]},{"id":"34ca9de4.afc932","type":"debug","z":"8910d6cc.874ba8","name":"Fonts Files","active":true,"console":"false","complete":"headers","x":1016.3742408752441,"y":1588.7499599456787,"wires":[]},{"id":"70fbcdd2.a656d4","type":"mqtt-broker","z":"","broker":"localhost","port":"1883","clientid":"","usetls":false,"compatmode":true,"keepalive":"60","cleansession":true,"willTopic":"","willQos":"0","willPayload":"","birthTopic":"","birthQos":"0","birthPayload":""},{"id":"d9cec698.d48398","type":"mongodb","z":"","hostname":"127.0.0.1","port":"27017","db":"db","name":""},{"id":"1c62d821.0ade98","type":"modbustcp-no-pooling-server","z":"","host":"192.168.0.201","port":"502","unit_id":"1"}]
-=======
-[{"id":"3264fb10.0c9954","type":"inject","z":"e539c513.9b38b","name":"test","topic":"","payload":"test1","payloadType":"str","repeat":"","crontab":"","once":false,"x":91.5,"y":131,"wires":[["ba4472.7b40cb9"]]},{"id":"ba4472.7b40cb9","type":"debug","z":"e539c513.9b38b","name":"","active":true,"console":"false","complete":"false","x":276.5,"y":131,"wires":[]},{"id":"76a38da0.0b75cc","type":"mqtt in","z":"e539c513.9b38b","name":"test","topic":"/test","qos":"0","broker":"7d55cdfd.ad230c","x":91.5,"y":193,"wires":[["ba4472.7b40cb9"]]},{"id":"dff0bde2.1b63a","type":"mqtt out","z":"e539c513.9b38b","name":"test receiver","topic":"/test","qos":"0","retain":"false","broker":"7d55cdfd.ad230c","x":318.5,"y":281,"wires":[]},{"id":"f53ab522.c507a","type":"inject","z":"e539c513.9b38b","name":"test","topic":"","payload":"test1","payloadType":"str","repeat":"","crontab":"","once":false,"x":104,"y":280,"wires":[["dff0bde2.1b63a"]]},{"id":"449ca46.71a565c","type":"mongodb in","z":"e539c513.9b38b","mongodb":"b8db14f1.87b1c","name":"","collection":"db","operation":"find","x":217.5,"y":386,"wires":[[]]},{"id":"3ba280db.48eb7","type":"modbustcp-no-pooling-read","z":"e539c513.9b38b","name":"Read POP","dataType":"HoldingRegister","adr":"0","quantity":"32","server":"2428599d.ad9ee6","x":504,"y":530,"wires":[["261f6713.52b118"],["178f256f.0a2a2b"]]},{"id":"6e3f9e9.542136","type":"debug","z":"e539c513.9b38b","name":"Leitura PLC","active":true,"console":"false","complete":"payload","x":919.6963272094727,"y":515.6468906402588,"wires":[]},{"id":"2de88d41.244cf2","type":"inject","z":"e539c513.9b38b","name":"atualizar","topic":"","payload":"","payloadType":"date","repeat":"60","crontab":"","once":true,"x":298.7617301940918,"y":529.6634330749512,"wires":[["3ba280db.48eb7"]]},{"id":"2799f605.e2958a","type":"function","z":"e539c513.9b38b","name":"Variaveis Globais","func":"//Estado inicial da maquina Ã© nÃ£o inicializada MaqInicializada=0\nglobal.set(\"ComandoMaquina\",0);//liberamensagens do bloco libera maquina\nglobal.set(\"MotorPrensa\",0);\nglobal.set(\"MotorLigado\",0);\nglobal.set(\"MotorInvertido\",0);\nglobal.set(\"Desbobinador\",0);\nglobal.set(\"Indice_Mongo\",0);\nglobal.set(\"TamanhoDesejadoPeca_KEYBOARD\",0);\nglobal.set(\"TamanhoRealPeca_KEYBOARD\",0);\nglobal.set(\"FatorEncoder\",9909);\nglobal.set(\"ModBus\",[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);\nvar start = new Date().getTime();\nglobal.set(\"tempo\",start);\n\nvar mensagens = [];\n\nmensagens['LER_CLP_MODBUS'] =        { type: 'error', message: ' CLP nÃ£o responde. Verifique as conexÃµes de rede.' };\nmensagens['EMERGENCIA'] =            { type: 'error', message: ' Emergencia acionada!' };\nmensagens['FALTA_FASE'] =            { type: 'error', message: ' Falta de Fase' };\nmensagens['BOMBA_HIDRAULICA'] =      { type: 'error', message: ' TÃ©rmico da Bomba Hidraulica' };\nmensagens['MARTELO_PRENSA'] =        { type: 'error', message: ' TÃ©rmico do Motor do Martelo Prensa' };\nmensagens['PRESSAO_AR'] =            { type: 'warning', message: 'Pressao do Ar Baixa!' };\nmensagens['INVERSOR'] =              { type: 'error', message: ' Erro no Inversor' };\nmensagens['SERVO'] =                 { type: 'error', message: ' Erro no Servo' };\nmensagens['CHAVE_GERAL_DESLIGADA'] = { type: 'warning', message: ' Chave Geral Desligada' };\nmensagens['CHAVE_GERAL_LIGADA']    = { type: 'warning', message: ' Chave Geral ligada' };\nmensagens['MAQUINA_NAO_LIBERADA'] =  { type: 'warning', message: ' Maquina NÃ£o Liberada' };\nmensagens['MAQUINA_LIBERADA']     =  { type: 'warning', message: ' Maquina Liberada' };\nmensagens['ERRO_POSICIONAMENTO']=    { type: 'error', message: ' Erro Posicionamento' };\nmensagens['SEGURAN_PRENSA'] =        { type: 'info', message: ' SeguranÃ§a da Prensa' };\nmensagens['APLAN_ABERTA'] =          { type: 'info', message: ' Aplanadora Aberda' };\n\nglobal.set(\"mensagens\",mensagens);\nmsg= {payload: \"{MAQUINA_OFF:0}\"};\nreturn msg;","outputs":1,"noerr":0,"x":505.38072204589844,"y":601.8183555603027,"wires":[[]]},{"id":"c52a9229.1ad6a","type":"inject","z":"e539c513.9b38b","name":"Globais","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":true,"x":304.71437072753906,"y":601.8095245361328,"wires":[["2799f605.e2958a"]]},{"id":"261f6713.52b118","type":"function","z":"e539c513.9b38b","name":"loop leitura i=0","func":"global.set(\"ModBus\",msg.payload);\nmsg.i =0;\nnode.status({fill:\"red\",shape:\"ring\",text:msg.payload});\nreturn msg;","outputs":1,"noerr":0,"x":727.3332901000977,"y":514.9999923706055,"wires":[["6e3f9e9.542136"]]},{"id":"178f256f.0a2a2b","type":"debug","z":"e539c513.9b38b","name":"Erro","active":true,"console":"false","complete":"payload","x":696.9355430603027,"y":559.8816566467285,"wires":[]},{"id":"8a452e2b.933b7","type":"function","z":"e539c513.9b38b","name":"Abrir portao","func":"var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nmodbus[0] = 1;\nmsg.payload = modbus[0];\nmsg2.payload = \"ACIONANDO PORTAO\";\nmsg2.payload.time= new Date();\nnode.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n\n   \n\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];","outputs":"2","noerr":0,"x":542.3333740234375,"y":781.6666870117188,"wires":[["d6f0cb9d.e4bed8","68ed9bec.580404","1a0696d8.2acd99"],["de340ed.1134ff"]]},{"id":"68ed9bec.580404","type":"modbustcp-no-pooling-write","z":"e539c513.9b38b","name":"portao M0.0","dataType":"HoldingRegister","adr":"0","server":"2428599d.ad9ee6","x":795.0514068603516,"y":775.31321144104,"wires":[["32018a02.0e61d6"],["1e91ac3d.1b4824"]]},{"id":"55d0ecf6.710114","type":"inject","z":"e539c513.9b38b","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":298.62122090657545,"y":779.7963968912759,"wires":[["8a452e2b.933b7"]]},{"id":"d6f0cb9d.e4bed8","type":"debug","z":"e539c513.9b38b","name":"","active":true,"console":"false","complete":"false","x":795.2878189086914,"y":721.5482273101807,"wires":[]},{"id":"de340ed.1134ff","type":"debug","z":"e539c513.9b38b","name":"mensagem ok","active":true,"console":"false","complete":"payload","x":801.9495620727539,"y":833.2148551940918,"wires":[]},{"id":"32018a02.0e61d6","type":"debug","z":"e539c513.9b38b","name":"RESPOSTA","active":true,"console":"false","complete":"payload","x":1023.6212209065752,"y":769.8768615722654,"wires":[]},{"id":"5196c494.43353c","type":"http in","z":"e539c513.9b38b","name":"veiculo","url":"/api/portao/veiculo","method":"post","swaggerDoc":"","x":283.99999999999994,"y":867.9999999999998,"wires":[["8a452e2b.933b7"]]},{"id":"1a0696d8.2acd99","type":"http response","z":"e539c513.9b38b","name":"/api/portao/veiculo","x":816,"y":672,"wires":[]},{"id":"1e91ac3d.1b4824","type":"debug","z":"e539c513.9b38b","name":"Erro no Comando","active":true,"console":"false","complete":"payload","x":1044.4444580078125,"y":809.9999389648438,"wires":[]},{"id":"780c4660.614aa8","type":"http response","z":"e539c513.9b38b","name":"","x":941.0000152587891,"y":1360.0000085830688,"wires":[]},{"id":"13456c5d.268bb4","type":"http in","z":"e539c513.9b38b","name":"Index","url":"/sitio","method":"get","swaggerDoc":"","x":190.44437281290675,"y":1360.1110705269707,"wires":[["2d9c9895.132d78"]]},{"id":"2d9c9895.132d78","type":"file in","z":"e539c513.9b38b","name":"index.HTML","filename":"/home/celso/git/sitio/build/index.html","format":"utf8","x":578.5554885864258,"y":1360.222183227539,"wires":[["85e48352.419ff"]]},{"id":"c98fac13.23232","type":"http response","z":"e539c513.9b38b","name":"","x":941.4445012410488,"y":1480.666657447815,"wires":[]},{"id":"3b3578d8.4df768","type":"comment","z":"e539c513.9b38b","name":"HTML","info":"","x":190,"y":1323.9999837875366,"wires":[]},{"id":"85e48352.419ff","type":"function","z":"e539c513.9b38b","name":"Text/HTML","func":"msg.headers = { \"Content-type\" : \"text/html\" }\n\nreturn msg;","outputs":1,"noerr":0,"x":788.8332672119141,"y":1360.0211572647095,"wires":[["780c4660.614aa8"]]},{"id":"7010d162.95bce","type":"http in","z":"e539c513.9b38b","name":"JS","url":"/static/js/main.ea652238.js","method":"get","swaggerDoc":"","x":198.93917083740234,"y":1478.8567504882812,"wires":[["df7d3748.3af8d8","a6e1caca.66fb58"]]},{"id":"8ec2aa7c.643798","type":"http response","z":"e539c513.9b38b","name":"","x":940.4445470174155,"y":1397.5629977120293,"wires":[]},{"id":"76f62c90.3e5e84","type":"http in","z":"e539c513.9b38b","name":"css","url":"/static/css/main.56c1a68e.css","method":"get","swaggerDoc":"","x":188.8889045715332,"y":1397.6740596559312,"wires":[["d4471fb2.c03de"]]},{"id":"7f824d62.b2e574","type":"function","z":"e539c513.9b38b","name":"Text/CSS","func":"msg.headers = { \"Content-type\" : \"text/css\" }\n \nreturn msg;","outputs":1,"noerr":0,"x":779.0185508728027,"y":1397.340750588311,"wires":[["8ec2aa7c.643798"]]},{"id":"901e63f.46857a","type":"comment","z":"e539c513.9b38b","name":"Servidor WEB","info":"$options => i for case insensitive search\n\nStart with string\n\ndb.collection.find({zip:{'$regex' : '^string', '$options' : 'i'}})\nEnd with string\n\ndb.collection.find({zip:{'$regex' : 'string$', '$options' : 'i'}})\nContains string\n\ndb.collection.find({zip:{'$regex' : 'string', '$options' : 'i'}})\nDoesn't Contains string\n\ndb.collection.find({zip:{'$regex' : '^((?!string).)*$', '$options' : 'i'}})\nKeep this as a bookmark, and a reference for any other alterations you may need. http://www.cheatography.com/davechild/cheat-sheets/regular-expressions/","x":618.4629592895508,"y":1307.4517879486084,"wires":[]},{"id":"df7d3748.3af8d8","type":"debug","z":"e539c513.9b38b","name":"recebeu","active":true,"console":"false","complete":"true","x":387.5,"y":1301.883339881897,"wires":[]},{"id":"6fdea10.220896","type":"debug","z":"e539c513.9b38b","name":"saida","active":true,"console":"false","complete":"true","x":791,"y":1283.883339881897,"wires":[]},{"id":"6c9570ca.7f9a7","type":"function","z":"e539c513.9b38b","name":"1 portao menor S2","func":"var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nmodbus[2] |= (1<<2);\nmsg.payload = modbus[2];\nmsg2.payload = \"ACIONANDO PORTAO MENOR\";\nmsg2.payload.time= new Date();\nnode.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];","outputs":"2","noerr":0,"x":565,"y":1042.333251953125,"wires":[["aeb768ea.1739a8","9be5128c.5fcbe","1209936f.12c31d"],["6dfffb6d.840ce4"]]},{"id":"9be5128c.5fcbe","type":"modbustcp-no-pooling-write","z":"e539c513.9b38b","name":"portao M2","dataType":"HoldingRegister","adr":"2","server":"2428599d.ad9ee6","x":787.7180328369141,"y":1035.9797763824463,"wires":[["dbcd483d.ff6a48"],["3795a00c.f201"]]},{"id":"aeb768ea.1739a8","type":"debug","z":"e539c513.9b38b","name":"","active":true,"console":"false","complete":"false","x":798.9544448852539,"y":989.2147922515869,"wires":[]},{"id":"6dfffb6d.840ce4","type":"debug","z":"e539c513.9b38b","name":"mensagem ok","active":true,"console":"false","complete":"payload","x":807.6162109375,"y":1087.8814697265625,"wires":[]},{"id":"e783ee51.468f8","type":"debug","z":"e539c513.9b38b","name":"RESPOSTA","active":true,"console":"false","complete":"payload","x":1454.287841796875,"y":1016.54345703125,"wires":[]},{"id":"1209936f.12c31d","type":"http response","z":"e539c513.9b38b","name":"/api/portao/pedestre","x":830.6666259765625,"y":943.6666259765625,"wires":[]},{"id":"3795a00c.f201","type":"debug","z":"e539c513.9b38b","name":"Erro no Comando","active":true,"console":"false","complete":"payload","x":1036.111083984375,"y":1072.66650390625,"wires":[]},{"id":"6e2b448c.fa473c","type":"inject","z":"e539c513.9b38b","name":"","topic":"","payload":"","payloadType":"date","repeat":"","crontab":"","once":false,"x":351.287841796875,"y":1042.4630126953125,"wires":[["6c9570ca.7f9a7"]]},{"id":"7e60a385.621a2c","type":"http in","z":"e539c513.9b38b","name":"pedestre","url":"/api/portao/pedestre","method":"post","swaggerDoc":"","x":354.6666259765625,"y":1086.6666259765625,"wires":[["6c9570ca.7f9a7"]]},{"id":"d4471fb2.c03de","type":"file in","z":"e539c513.9b38b","name":"css","filename":"/home/celso/git/sitio/build/static/css/main.56c1a68e.css","format":"utf8","x":560.4285888671875,"y":1400.2857666015625,"wires":[["7f824d62.b2e574"]]},{"id":"a6e1caca.66fb58","type":"file in","z":"e539c513.9b38b","name":"js","filename":"/home/celso/git/sitio/build/static/js/main.ea652238.js","format":"utf8","x":570.4285888671875,"y":1479.4285888671875,"wires":[["c98fac13.23232","6fdea10.220896"]]},{"id":"df003581.d972a8","type":"http in","z":"e539c513.9b38b","name":"walk ","url":"/static/media/walk.a4b6ae35.svg","method":"get","swaggerDoc":"","x":201,"y":1536,"wires":[["af11de93.8b5af"]]},{"id":"f570def.b9a6e2","type":"http in","z":"e539c513.9b38b","name":"car","url":"/static/media/car.648db8dc.svg","method":"get","swaggerDoc":"","x":201,"y":1587,"wires":[["b80498ae.e9be48"]]},{"id":"af11de93.8b5af","type":"file in","z":"e539c513.9b38b","name":"walk","filename":"/home/celso/git/sitio/build/static/media/walk.a4b6ae35.svg","format":"utf8","x":571,"y":1533,"wires":[["630dccc.ac95534"]]},{"id":"fa24e9f.d1e6018","type":"http response","z":"e539c513.9b38b","name":"","x":938,"y":1535,"wires":[]},{"id":"b80498ae.e9be48","type":"file in","z":"e539c513.9b38b","name":"CAR","filename":"/home/celso/git/sitio/build/static/media/car.648db8dc.svg","format":"utf8","x":568,"y":1585,"wires":[["1ba408c8.24c527"]]},{"id":"13652338.49898d","type":"http response","z":"e539c513.9b38b","name":"","x":941,"y":1582,"wires":[]},{"id":"6e461264.c56f2c","type":"http response","z":"e539c513.9b38b","name":"","x":930.5556996663418,"y":1696.3335247039795,"wires":[]},{"id":"3d6f1292.49743e","type":"http response","z":"e539c513.9b38b","name":"","x":931.0001576741543,"y":1733.4446392059326,"wires":[]},{"id":"2c55ab12.e3cf44","type":"function","z":"e539c513.9b38b","name":"webfont.woff","func":"msg.headers = { \"Content-type\" : \"application/font-webfont.woff\" }\n         \nreturn msg;","outputs":1,"noerr":0,"x":780.77783203125,"y":1696.222412109375,"wires":[["6e461264.c56f2c"]]},{"id":"746344a5.80affc","type":"function","z":"e539c513.9b38b","name":"webfont.ttf","func":"msg.headers = { \"Content-type\" : \"application/font-webfont.ttf\" }\n         \nreturn msg;","outputs":1,"noerr":0,"x":782.6667442321777,"y":1733.889066696167,"wires":[["3d6f1292.49743e"]]},{"id":"5c74abde.86ea74","type":"http in","z":"e539c513.9b38b","name":"89889688","url":"/static/media/glyphicons-halflings-regular.89889688.svg","method":"get","swaggerDoc":"","x":213,"y":1635,"wires":[["2fc94311.3903fc"]]},{"id":"2fc94311.3903fc","type":"file in","z":"e539c513.9b38b","name":"89889688","filename":"/home/celso/git/sitio/build/static/glyphicons-halflings-regular.89889688.svg","format":"utf8","x":579,"y":1637,"wires":[["5fb49420.b43d5c"]]},{"id":"cfabc9d.60fae38","type":"http response","z":"e539c513.9b38b","name":"","x":931,"y":1638,"wires":[]},{"id":"6a399d1f.9312c4","type":"http in","z":"e539c513.9b38b","name":"woff","url":"/static/media/glyphicons-halflings-regular.fa277232.woff","method":"get","swaggerDoc":"","x":203,"y":1695,"wires":[["179413ca.2414ec"]]},{"id":"a62b1a8e.f295b8","type":"http in","z":"e539c513.9b38b","name":"eot","url":"/static/media/glyphicons-halflings-regular.fa277232.woff","method":"get","swaggerDoc":"","x":203,"y":1738,"wires":[["33ad9412.e6dc7c"]]},{"id":"179413ca.2414ec","type":"file in","z":"e539c513.9b38b","name":"woff","filename":"/home/celso/git/sitio/build/static/glyphicons-halflings-regular.fa277232.woff","format":"utf8","x":545,"y":1691,"wires":[["2c55ab12.e3cf44"]]},{"id":"33ad9412.e6dc7c","type":"file in","z":"e539c513.9b38b","name":"eot","filename":"/home/celso/git/sitio/build/static/glyphicons-halflings-regular.fa277232.woff","format":"utf8","x":548,"y":1733,"wires":[["746344a5.80affc"]]},{"id":"1ba408c8.24c527","type":"function","z":"e539c513.9b38b","name":"","func":"msg.headers = { \"Content-type\" : \"image/svg+xml\" }\n\nreturn msg;","outputs":1,"noerr":0,"x":767,"y":1586,"wires":[["13652338.49898d"]]},{"id":"5fb49420.b43d5c","type":"function","z":"e539c513.9b38b","name":"","func":"msg.headers = { \"Content-type\" : \"image/svg+xml\" }\n\nreturn msg;","outputs":1,"noerr":0,"x":765,"y":1641,"wires":[["cfabc9d.60fae38"]]},{"id":"630dccc.ac95534","type":"function","z":"e539c513.9b38b","name":"","func":"msg.headers = { \"Content-type\" : \"image/svg+xml\" }\n\nreturn msg;","outputs":1,"noerr":0,"x":759,"y":1529,"wires":[["fa24e9f.d1e6018"]]},{"id":"587273e4.0f081c","type":"function","z":"e539c513.9b38b","name":"0 portao menor S2","func":"var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nmodbus[2] &= ~(1<<2);\nmsg.payload = modbus[2];\nmsg2.payload = \"DESLIGA PORTAO MENOR\";\nmsg2.payload.time= new Date();\nnode.status({fill:\"blue\",shape:\"ring\",text:msg.payload});\n\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];","outputs":"2","noerr":0,"x":1099,"y":1029,"wires":[["3c67198f.3e7ee6"],[]]},{"id":"3c67198f.3e7ee6","type":"modbustcp-no-pooling-write","z":"e539c513.9b38b","name":"portao M2","dataType":"HoldingRegister","adr":"2","server":"2428599d.ad9ee6","x":1273,"y":1023,"wires":[["e783ee51.468f8"],[]]},{"id":"dbcd483d.ff6a48","type":"function","z":"e539c513.9b38b","name":"600ms","func":"setTimeout(function() {\n    node.send(msg);\n}, 600);\nreturn null;","outputs":1,"noerr":0,"x":937,"y":1029,"wires":[["587273e4.0f081c"]]},{"id":"7d55cdfd.ad230c","type":"mqtt-broker","z":"","broker":"localhost","port":"1883","clientid":"","usetls":false,"compatmode":true,"keepalive":"60","cleansession":true,"willTopic":"","willQos":"0","willPayload":"","birthTopic":"","birthQos":"0","birthPayload":""},{"id":"b8db14f1.87b1c","type":"mongodb","z":"","hostname":"127.0.0.1","port":"27017","db":"db","name":""},{"id":"2428599d.ad9ee6","type":"modbustcp-no-pooling-server","z":"","host":"192.168.10.254","port":"502","unit_id":"1"}]
->>>>>>> c71e4ad78c34e26728c29c094a4a85c92be4dfa5
+[
+    {
+        "id": "a6a9408e.1acc6",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "test",
+        "topic": "",
+        "payload": "test1",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 155.1657257080078,
+        "y": 50.151519775390625,
+        "wires": [
+            [
+                "a8abb62c.3fce38"
+            ]
+        ]
+    },
+    {
+        "id": "a8abb62c.3fce38",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 340.1657257080078,
+        "y": 50.151519775390625,
+        "wires": []
+    },
+    {
+        "id": "461abfb.a2b9c4",
+        "type": "mqtt in",
+        "z": "8910d6cc.874ba8",
+        "name": "test",
+        "topic": "/test",
+        "qos": "0",
+        "broker": "70fbcdd2.a656d4",
+        "x": 155.1657257080078,
+        "y": 112.15151977539062,
+        "wires": [
+            [
+                "a8abb62c.3fce38"
+            ]
+        ]
+    },
+    {
+        "id": "17dc8881.00d9e7",
+        "type": "mqtt out",
+        "z": "8910d6cc.874ba8",
+        "name": "test receiver",
+        "topic": "/test",
+        "qos": "0",
+        "retain": "false",
+        "broker": "70fbcdd2.a656d4",
+        "x": 373.1657257080078,
+        "y": 199.15151977539062,
+        "wires": []
+    },
+    {
+        "id": "dbad6698.be8528",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "test",
+        "topic": "",
+        "payload": "test1",
+        "payloadType": "str",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 167.6657257080078,
+        "y": 199.15151977539062,
+        "wires": [
+            [
+                "17dc8881.00d9e7"
+            ]
+        ]
+    },
+    {
+        "id": "63f05b4e.e1c2e4",
+        "type": "mongodb in",
+        "z": "8910d6cc.874ba8",
+        "mongodb": "d9cec698.d48398",
+        "name": "",
+        "collection": "db",
+        "operation": "find",
+        "x": 281.1657257080078,
+        "y": 305.1515197753906,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1eee5138.3a5b7f",
+        "type": "modbustcp-no-pooling-read",
+        "z": "8910d6cc.874ba8",
+        "name": "Read POP",
+        "dataType": "HoldingRegister",
+        "adr": "0",
+        "quantity": "32",
+        "server": "1c62d821.0ade98",
+        "x": 567.6657257080078,
+        "y": 449.1515197753906,
+        "wires": [
+            [
+                "22ee802b.80cd1"
+            ],
+            [
+                "5cb3de20.263f5"
+            ]
+        ]
+    },
+    {
+        "id": "b20d7c0a.3d6f6",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "Leitura PLC",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 983.3620529174805,
+        "y": 434.7984104156494,
+        "wires": []
+    },
+    {
+        "id": "c167d3d9.d4b6b",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "atualizar",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 362.4274559020996,
+        "y": 448.8149528503418,
+        "wires": [
+            [
+                "1eee5138.3a5b7f"
+            ]
+        ]
+    },
+    {
+        "id": "4c884481.a4412c",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Variaveis Globais",
+        "func": "//Estado inicial da maquina é não inicializada MaqInicializada=0\nglobal.set(\"ComandoMaquina\",0);//liberamensagens do bloco libera maquina\nglobal.set(\"MotorPrensa\",0);\nglobal.set(\"MotorLigado\",0);\nglobal.set(\"MotorInvertido\",0);\nglobal.set(\"Desbobinador\",0);\nglobal.set(\"Indice_Mongo\",0);\nglobal.set(\"TamanhoDesejadoPeca_KEYBOARD\",0);\nglobal.set(\"TamanhoRealPeca_KEYBOARD\",0);\nglobal.set(\"FatorEncoder\",9909);\nglobal.set(\"ModBus\",[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]);\nvar start = new Date().getTime();\nglobal.set(\"tempo\",start);\n\nvar mensagens = [];\n\nmensagens['LER_CLP_MODBUS'] =        { type: 'error', message: ' CLP não responde. Verifique as conexões de rede.' };\nmensagens['EMERGENCIA'] =            { type: 'error', message: ' Emergencia acionada!' };\nmensagens['FALTA_FASE'] =            { type: 'error', message: ' Falta de Fase' };\nmensagens['BOMBA_HIDRAULICA'] =      { type: 'error', message: ' Térmico da Bomba Hidraulica' };\nmensagens['MARTELO_PRENSA'] =        { type: 'error', message: ' Térmico do Motor do Martelo Prensa' };\nmensagens['PRESSAO_AR'] =            { type: 'warning', message: 'Pressao do Ar Baixa!' };\nmensagens['INVERSOR'] =              { type: 'error', message: ' Erro no Inversor' };\nmensagens['SERVO'] =                 { type: 'error', message: ' Erro no Servo' };\nmensagens['CHAVE_GERAL_DESLIGADA'] = { type: 'warning', message: ' Chave Geral Desligada' };\nmensagens['CHAVE_GERAL_LIGADA']    = { type: 'warning', message: ' Chave Geral ligada' };\nmensagens['MAQUINA_NAO_LIBERADA'] =  { type: 'warning', message: ' Maquina Não Liberada' };\nmensagens['MAQUINA_LIBERADA']     =  { type: 'warning', message: ' Maquina Liberada' };\nmensagens['ERRO_POSICIONAMENTO']=    { type: 'error', message: ' Erro Posicionamento' };\nmensagens['SEGURAN_PRENSA'] =        { type: 'info', message: ' Segurança da Prensa' };\nmensagens['APLAN_ABERTA'] =          { type: 'info', message: ' Aplanadora Aberda' };\n\nglobal.set(\"mensagens\",mensagens);\nmsg= {payload: \"{MAQUINA_OFF:0}\"};\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 569.0464477539062,
+        "y": 520.9698753356934,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "75b741f0.81b05",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "Globais",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "x": 368.3800964355469,
+        "y": 520.9610443115234,
+        "wires": [
+            [
+                "4c884481.a4412c"
+            ]
+        ]
+    },
+    {
+        "id": "22ee802b.80cd1",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "loop leitura i=0",
+        "func": "global.set(\"ModBus\",msg.payload);\nmsg.i =0;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790.9990158081055,
+        "y": 434.1515121459961,
+        "wires": [
+            [
+                "b20d7c0a.3d6f6"
+            ]
+        ]
+    },
+    {
+        "id": "5cb3de20.263f5",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "Erro",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 760.6012687683105,
+        "y": 479.03317642211914,
+        "wires": []
+    },
+    {
+        "id": "19f64343.38582d",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Abrir portao",
+        "func": "var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nmodbus[0] = 1;\nmsg.payload = modbus[0];\nmsg2.payload = \"ACIONANDO PORTAO\";\nmsg2.payload.time= new Date();\nnode.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n\n   \n\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 605.9990997314453,
+        "y": 700.8182067871094,
+        "wires": [
+            [
+                "7e3aee47.4cc3",
+                "7183b2e4.2b27fc",
+                "6bf6b455.7c331c"
+            ],
+            [
+                "86e7e5d6.e46cf8"
+            ]
+        ]
+    },
+    {
+        "id": "7183b2e4.2b27fc",
+        "type": "modbustcp-no-pooling-write",
+        "z": "8910d6cc.874ba8",
+        "name": "portao M0.0",
+        "dataType": "HoldingRegister",
+        "adr": "0",
+        "server": "1c62d821.0ade98",
+        "x": 858.7171325683594,
+        "y": 694.4647312164307,
+        "wires": [
+            [
+                "d86fd25f.65b6c"
+            ],
+            [
+                "22b747ee.882c38"
+            ]
+        ]
+    },
+    {
+        "id": "9a2735f.170a0c8",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 362.28694661458303,
+        "y": 698.9479166666665,
+        "wires": [
+            [
+                "19f64343.38582d"
+            ]
+        ]
+    },
+    {
+        "id": "7e3aee47.4cc3",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 858.9535446166992,
+        "y": 640.6997470855713,
+        "wires": []
+    },
+    {
+        "id": "86e7e5d6.e46cf8",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "mensagem ok",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 865.6152877807617,
+        "y": 752.3663749694824,
+        "wires": []
+    },
+    {
+        "id": "d86fd25f.65b6c",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "RESPOSTA",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 1087.286946614583,
+        "y": 689.028381347656,
+        "wires": []
+    },
+    {
+        "id": "4fb0760b.8f1b88",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "veiculo",
+        "url": "/api/portao/veiculo",
+        "method": "post",
+        "swaggerDoc": "",
+        "x": 347.6657257080078,
+        "y": 787.1515197753904,
+        "wires": [
+            [
+                "19f64343.38582d"
+            ]
+        ]
+    },
+    {
+        "id": "6bf6b455.7c331c",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "/api/portao/veiculo",
+        "x": 879.6657257080078,
+        "y": 591.1515197753906,
+        "wires": []
+    },
+    {
+        "id": "22b747ee.882c38",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "Erro no Comando",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 1108.1101837158203,
+        "y": 729.1514587402344,
+        "wires": []
+    },
+    {
+        "id": "7c007a3.c17a184",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Abrir portao menor S2",
+        "func": "var modbus = global.get(\"ModBus\");\nvar msg2 = {};\n\nif (modbus[2]==0){\n    modbus[2] |= (1<<2);\n    msg.payload = modbus[2];\n    msg2.payload = \"ACIONANDO PORTAO MENOR\";\n    msg2.payload.time= new Date();\n    node.status({fill:\"yellow\",shape:\"ring\",text:msg.payload});\n}\nelse if (modbus[2]==4){\n    modbus[2] &= ~(1<<2);\n    msg.payload = modbus[2];\n    msg2.payload = \"DESLIGA PORTAO MENOR\";\n    msg2.payload.time= new Date();\n    node.status({fill:\"blue\",shape:\"ring\",text:msg.payload});\n}\nglobal.set('ModBus', modbus);//Atualiza registrador global\nreturn [msg, msg2];",
+        "outputs": "2",
+        "noerr": 0,
+        "x": 638.6657257080078,
+        "y": 952.4847717285156,
+        "wires": [
+            [
+                "f42e61b3.7415a",
+                "f6c38c2c.a3e26",
+                "5623092b.acfb98"
+            ],
+            [
+                "9a79c8ce.e9cc98"
+            ]
+        ]
+    },
+    {
+        "id": "f6c38c2c.a3e26",
+        "type": "modbustcp-no-pooling-write",
+        "z": "8910d6cc.874ba8",
+        "name": "portao M2",
+        "dataType": "HoldingRegister",
+        "adr": "2",
+        "server": "1c62d821.0ade98",
+        "x": 851.3837585449219,
+        "y": 946.1312961578369,
+        "wires": [
+            [
+                "58c8fb96.fc9994"
+            ],
+            [
+                "8ca5cf1e.eca9b"
+            ]
+        ]
+    },
+    {
+        "id": "f42e61b3.7415a",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 861.6201705932617,
+        "y": 892.3663120269775,
+        "wires": []
+    },
+    {
+        "id": "9a79c8ce.e9cc98",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "mensagem ok",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 868.2819137573242,
+        "y": 1004.0329399108887,
+        "wires": []
+    },
+    {
+        "id": "58c8fb96.fc9994",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "RESPOSTA",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 1089.9535725911455,
+        "y": 940.6949462890623,
+        "wires": []
+    },
+    {
+        "id": "5623092b.acfb98",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "/api/portao/pedestre",
+        "x": 892.3323516845703,
+        "y": 842.8180847167969,
+        "wires": []
+    },
+    {
+        "id": "8ca5cf1e.eca9b",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "Erro no Comando",
+        "active": true,
+        "console": "false",
+        "complete": "payload",
+        "x": 1110.7768096923828,
+        "y": 980.8180236816406,
+        "wires": []
+    },
+    {
+        "id": "ffaf7e6d.17723",
+        "type": "inject",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "x": 364.95357259114553,
+        "y": 950.6144816080728,
+        "wires": [
+            [
+                "7c007a3.c17a184"
+            ]
+        ]
+    },
+    {
+        "id": "b23a298a.53d218",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "pedestre",
+        "url": "/api/portao/pedestre",
+        "method": "post",
+        "swaggerDoc": "",
+        "x": 360.3323516845703,
+        "y": 1038.8180847167966,
+        "wires": [
+            [
+                "7c007a3.c17a184"
+            ]
+        ]
+    },
+    {
+        "id": "1cb0324e.fe00ce",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "x": 995.1243286132812,
+        "y": 1253.068115234375,
+        "wires": []
+    },
+    {
+        "id": "f35b9878.302e98",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "Index",
+        "url": "/sitio",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 244.56868616739894,
+        "y": 1253.1791771782769,
+        "wires": [
+            [
+                "16c3ad88.930382"
+            ]
+        ]
+    },
+    {
+        "id": "16c3ad88.930382",
+        "type": "file in",
+        "z": "8910d6cc.874ba8",
+        "name": "index.HTML",
+        "filename": "/home/marcelomiranda/git/sitio/build/index.html",
+        "format": "utf8",
+        "x": 632.679801940918,
+        "y": 1253.2902898788452,
+        "wires": [
+            [
+                "34bbb377.95db9c",
+                "fd2ddbdf.25b418"
+            ]
+        ]
+    },
+    {
+        "id": "e2733685.a82078",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "x": 995.568814595541,
+        "y": 1373.734764099121,
+        "wires": []
+    },
+    {
+        "id": "3bc0d0ac.70c1d",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Text/CSS",
+        "func": "msg.headers = { \"Content-type\" : \"text/css\" }\n \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 834.1242256164551,
+        "y": 1373.6236171722412,
+        "wires": [
+            [
+                "e2733685.a82078"
+            ]
+        ]
+    },
+    {
+        "id": "2b587d55.dfb952",
+        "type": "comment",
+        "z": "8910d6cc.874ba8",
+        "name": "HTML",
+        "info": "",
+        "x": 244.1243133544922,
+        "y": 1217.0680904388428,
+        "wires": []
+    },
+    {
+        "id": "a7272f51.3eeb3",
+        "type": "comment",
+        "z": "8910d6cc.874ba8",
+        "name": "CSS folder",
+        "info": "",
+        "x": 255.01312637329102,
+        "y": 1337.179349899292,
+        "wires": []
+    },
+    {
+        "id": "bd14a7d7.ccf6a8",
+        "type": "comment",
+        "z": "8910d6cc.874ba8",
+        "name": "JAVASCRIPT folder",
+        "info": "",
+        "x": 284.45762634277344,
+        "y": 1416.6238641738892,
+        "wires": []
+    },
+    {
+        "id": "fadb9ed6.604a8",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "x": 995.5687764485683,
+        "y": 1454.179183959961,
+        "wires": []
+    },
+    {
+        "id": "84dc658f.daf7e8",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "Scripts",
+        "url": "/static/js/:file",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 245.01313400268555,
+        "y": 1454.2902459038628,
+        "wires": [
+            [
+                "8a229b5c.0bce18"
+            ]
+        ]
+    },
+    {
+        "id": "c2ebbfad.00777",
+        "type": "comment",
+        "z": "8910d6cc.874ba8",
+        "name": "media folder",
+        "info": "",
+        "x": 264.2353057861328,
+        "y": 1503.29026222229,
+        "wires": []
+    },
+    {
+        "id": "d9fb63e9.421ef",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "x": 994.7910054524746,
+        "y": 1538.6237869262695,
+        "wires": []
+    },
+    {
+        "id": "a5781f1e.d9ceb",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "media",
+        "url": "/static/media/:file",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 244.2353630065918,
+        "y": 1538.7348488701714,
+        "wires": [
+            [
+                "8e5e6ff2.9f319"
+            ]
+        ]
+    },
+    {
+        "id": "9456f36d.7f481",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "media",
+        "func": "var ext = msg.filename.split('.')[msg.filename.split('.').length - 1]\n\nconsole.log('File extension: ' + ext)\n\nswitch(ext) {\n    case 'eot':\n        msg.headers = { \"Content-type\" : \"application/vnd.ms-fontobject\" }\n        break;\n    case 'svg':\n        msg.headers = { \"Content-type\" : \"image/svg+xml\" }\n        break;\n    case 'ttf':\n        msg.headers = { \"Content-type\" : \"application/x-font-ttf\" }\n        break;\n    case 'woff':\n        msg.headers = { \"Content-type\" : \"application/font-woff\" }\n        break;\n    case 'woff2':\n        msg.headers = { \"Content-type\" : \"application/font-woff2\" }\n        break;\n    case 'otf':\n        msg.headers = { \"Content-type\" : \"application/x-font-opentype\" }\n        break;\n}\n\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 826.0131568908691,
+        "y": 1538.512674331665,
+        "wires": [
+            [
+                "d9fb63e9.421ef",
+                "34ca9de4.afc932"
+            ]
+        ]
+    },
+    {
+        "id": "34bbb377.95db9c",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Text/HTML",
+        "func": "msg.headers = { \"Content-type\" : \"text/html\" }\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 842.9575805664062,
+        "y": 1253.0892639160156,
+        "wires": [
+            [
+                "1cb0324e.fe00ce"
+            ]
+        ]
+    },
+    {
+        "id": "f76a8ad3.0b1268",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "CSS Files",
+        "url": "/static/css/:file",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 255.92062759399414,
+        "y": 1373.353394402398,
+        "wires": [
+            [
+                "b34d2c27.36ecd"
+            ]
+        ]
+    },
+    {
+        "id": "b34d2c27.36ecd",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "files",
+        "func": "msg.filename = '//home//marcelomiranda//git//sitio//build//static//css//' + msg.req.params.file;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 488.14287185668945,
+        "y": 1373.131226433648,
+        "wires": [
+            [
+                "f4676275.389df"
+            ]
+        ]
+    },
+    {
+        "id": "f4676275.389df",
+        "type": "file in",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "filename": "",
+        "format": "",
+        "x": 654.3651084899902,
+        "y": 1373.2423943413628,
+        "wires": [
+            [
+                "3bc0d0ac.70c1d",
+                "6d2a96be.011868"
+            ]
+        ]
+    },
+    {
+        "id": "8a229b5c.0bce18",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "files",
+        "func": "msg.filename = '//home//marcelomiranda//git//sitio//build//static//js//' + msg.req.params.file;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 485.892635345459,
+        "y": 1455.1867063045502,
+        "wires": [
+            [
+                "46d56a92.8250a4"
+            ]
+        ]
+    },
+    {
+        "id": "8e5e6ff2.9f319",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "files",
+        "func": "msg.filename = '//home//marcelomiranda//git//sitio//build//static//media//' + msg.req.params.file;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 491.4761772155762,
+        "y": 1538.4644669426812,
+        "wires": [
+            [
+                "3c2a15c5.4eea4a"
+            ]
+        ]
+    },
+    {
+        "id": "46d56a92.8250a4",
+        "type": "file in",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "filename": "",
+        "format": "",
+        "x": 654.8095588684082,
+        "y": 1455.131226433648,
+        "wires": [
+            [
+                "6a770060.9333a",
+                "fadb9ed6.604a8"
+            ]
+        ]
+    },
+    {
+        "id": "6a770060.9333a",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "FIles JS",
+        "active": false,
+        "console": "false",
+        "complete": "filename",
+        "x": 834.6984634399414,
+        "y": 1493.9090565575493,
+        "wires": []
+    },
+    {
+        "id": "3c2a15c5.4eea4a",
+        "type": "file in",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "filename": "",
+        "format": "",
+        "x": 657.0317268371582,
+        "y": 1538.2421883477105,
+        "wires": [
+            [
+                "9456f36d.7f481"
+            ]
+        ]
+    },
+    {
+        "id": "96955030.26226",
+        "type": "http response",
+        "z": "8910d6cc.874ba8",
+        "name": "",
+        "x": 994.5688603719077,
+        "y": 1290.6311043633355,
+        "wires": []
+    },
+    {
+        "id": "476b793c.f3ba48",
+        "type": "http in",
+        "z": "8910d6cc.874ba8",
+        "name": "Bootstrap",
+        "url": "/sitio",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 253.0132179260254,
+        "y": 1290.7421663072373,
+        "wires": [
+            [
+                "84e81963.2a93a8"
+            ]
+        ]
+    },
+    {
+        "id": "84e81963.2a93a8",
+        "type": "file in",
+        "z": "8910d6cc.874ba8",
+        "name": "boostrap.min",
+        "filename": "/home/marcelomiranda/react-node-red/build/boostrap.min",
+        "format": "utf8",
+        "x": 631.1243336995444,
+        "y": 1290.8532790078057,
+        "wires": [
+            [
+                "d88a20ef.85c3b"
+            ]
+        ]
+    },
+    {
+        "id": "d88a20ef.85c3b",
+        "type": "function",
+        "z": "8910d6cc.874ba8",
+        "name": "Text/CSS",
+        "func": "msg.headers = { \"Content-type\" : \"text/css\" }\n \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 833.1428642272949,
+        "y": 1290.4088572396172,
+        "wires": [
+            [
+                "96955030.26226"
+            ]
+        ]
+    },
+    {
+        "id": "6d2a96be.011868",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "CSS files",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 835.0317878723145,
+        "y": 1418.464478386773,
+        "wires": []
+    },
+    {
+        "id": "eb167d74.e3bbc",
+        "type": "comment",
+        "z": "8910d6cc.874ba8",
+        "name": "Servidor WEB",
+        "info": "$options => i for case insensitive search\n\nStart with string\n\ndb.collection.find({zip:{'$regex' : '^string', '$options' : 'i'}})\nEnd with string\n\ndb.collection.find({zip:{'$regex' : 'string$', '$options' : 'i'}})\nContains string\n\ndb.collection.find({zip:{'$regex' : 'string', '$options' : 'i'}})\nDoesn't Contains string\n\ndb.collection.find({zip:{'$regex' : '^((?!string).)*$', '$options' : 'i'}})\nKeep this as a bookmark, and a reference for any other alterations you may need. http://www.cheatography.com/davechild/cheat-sheets/regular-expressions/",
+        "x": 672.587272644043,
+        "y": 1200.5198945999146,
+        "wires": []
+    },
+    {
+        "id": "fd2ddbdf.25b418",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "saida",
+        "active": false,
+        "console": "false",
+        "complete": "true",
+        "x": 823.8743057250977,
+        "y": 1213.201545715332,
+        "wires": []
+    },
+    {
+        "id": "34ca9de4.afc932",
+        "type": "debug",
+        "z": "8910d6cc.874ba8",
+        "name": "Fonts Files",
+        "active": true,
+        "console": "false",
+        "complete": "headers",
+        "x": 1016.3742408752441,
+        "y": 1588.7499599456787,
+        "wires": []
+    },
+    {
+        "id": "70fbcdd2.a656d4",
+        "type": "mqtt-broker",
+        "z": "",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "d9cec698.d48398",
+        "type": "mongodb",
+        "z": "",
+        "hostname": "127.0.0.1",
+        "port": "27017",
+        "db": "db",
+        "name": ""
+    },
+    {
+        "id": "1c62d821.0ade98",
+        "type": "modbustcp-no-pooling-server",
+        "z": "",
+        "host": "192.168.0.201",
+        "port": "502",
+        "unit_id": "1"
+    }
+]
